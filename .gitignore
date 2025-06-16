@@ -321,8 +321,11 @@ celerybeat.pid
 
 # Environments
 .env
-.env.runner.**
-.env.func.**
+.env.dev
+.env.runner.dev
+.env.runner.prod
+.env.func.dev
+.env.func.prod
 .venv
 env/
 venv/
