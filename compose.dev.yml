@@ -1,0 +1,99 @@
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker Compose reference guide at
+# https://docs.docker.com/go/compose-spec-reference/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# databases or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+services:
+
+  web-app:
+    platform: "linux/amd64"
+    image: ghcr.io/s3-platform-inc/news-search-app:latest
+    restart: always
+    ports:
+      - 8000:8000
+    environment:
+      - EXTRA_DB_HOST=s3p-database
+      - EXTRA_DB_PORT=5432
+      - EXTRA_DB_NANE=sppIntegrateDB
+      - EXTRA_DB_USER=postgres
+      - EXTRA_DB_PASSWORD=default-password
+    networks:
+      - postgres_network
+    depends_on:
+      - s3p-database
+
+  s3p-database:
+    platform: "linux/amd64"
+    image: "ghcr.io/s3-platform-inc/s3p-database:dev"
+    restart: unless-stopped
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_DB=sppIntegrateDB
+     - POSTGRES_PASSWORD=default-password
+    ports:
+      - 9999:5432
+    expose:
+     - 5432
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-sppIntegrateDB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - postgres_network
+
+  s3p-runner:
+    platform: "linux/amd64"
+    image: ghcr.io/s3-platform-inc/s3p-node:3.0.2-beta
+    restart: unless-stopped
+    networks:
+      - postgres_network
+    env_file:
+      - .env.runner.dev
+    environment:
+      - NODE_NAME=s3p-runner-1
+      - NODE_IP=-1
+      - NODE_TYPES=SOURCE
+    volumes:
+      - type: bind # директория для логов
+        source: runner_data/logs
+        target: /sppnode/logs
+      - type: bind # архив плагинов
+        source: runner_data/plugin_archive
+        target: /sppnode/plugin_archive
+      - type: bind # локальное хранилище
+        source: runner_data/localstorage
+        target: /sppnode/localstorage
+      - type: bind # локальное хранилище
+        source: .env.runner.dev
+        target: /sppnode/.env
+    depends_on:
+      - s3p-database
+
+  word-mention-func:
+    platform: "linux/amd64"
+    image: ghcr.io/s3-platform-inc/word-mention-func:dev
+    env_file:
+      - .env.func.dev
+    depends_on:
+      - s3p-database
+    networks:
+      - postgres_network
+
+
+volumes:
+  postgres_data:
+  runner_data:
+
+networks:
+  postgres_network:
+    driver: bridge
+  intranet:
+    driver: bridge
+
+
