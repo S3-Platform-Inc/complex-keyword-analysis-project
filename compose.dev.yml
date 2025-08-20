@@ -49,7 +49,7 @@ services:
 
   s3p-runner:
     platform: "linux/amd64"
-    image: ghcr.io/s3-platform-inc/s3p-node:3.0.2-beta
+    image: ghcr.io/s3-platform-inc/s3p-node:3.0.3-beta
     restart: unless-stopped
     networks:
       - postgres_network
