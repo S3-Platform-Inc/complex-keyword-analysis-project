@@ -26,6 +26,6 @@ GITHUB_TOKEN={Токен Авторизации}
 ### Запуск в Docker-Compose
 
 ```shell
-docker-compose up -d
+docker-compose -f compose.dev.yml up -d
 ```
 
