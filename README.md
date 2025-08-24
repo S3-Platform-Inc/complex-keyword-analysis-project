@@ -1,6 +1,33 @@
 
 ----
 
+## Запуск через Make
+
+### Настройка Docker
+Для разворачивания проекта необходим token GitHub с соответствующим доступом.
+Для получения токена:
+1. Войдите на [GitHub](github.com).
+2. Перейдите в меню Settings → Developer settings → Personal access tokens. 
+3. Нажмите `Generate new classic token`. 
+4. Установите права `read:packages`. 
+5. Скопируйте токен и сохраните его в надёжном месте — он понадобится для работы с docker и git.
+6. Установить переменные окружения:
+```shell
+export GITHUB_USER="YOUR_USER"
+export GITHUB_TOKEN="YOUR_TOKEN"
+```
+
+### Настройка dotenv проекта
+1. Запустить Make-файл
+```shell
+make setup-env
+```
+
+### Запуск Make файла
+```shell
+make
+```
+
 ## Запуск
 
 ### Настройка окружения
